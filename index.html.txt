@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForYouAI - Your Personal AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <h1>ForYouAI</h1>
+            </div>
+            <div class="header-right">
+                <button id="themeToggle" class="theme-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat Container -->
+        <div class="chat-container" id="chatContainer">
+            <!-- Welcome Message -->
+            <div class="welcome-message">
+                <div class="welcome-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h2>Welcome to ForYouAI</h2>
+                <p>Your personal AI assistant is ready to help with anything - news, math, coding, or any question you have!</p>
+                <div class="start-btn" id="startBtn">
+                    <i class="fas fa-play"></i>
+                    Start Chatting
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="messages" id="messages"></div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area" id="inputArea">
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="Ask me anything... (news, math, coding, general questions)"
+                        rows="1"
+                    ></textarea>
+                    <button id="sendBtn" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-btn" data-prompt="What's the latest news?">
+                        <i class="fas fa-newspaper"></i> News
+                    </button>
+                    <button class="quick-btn" data-prompt="Solve 2x + 5 = 15">
+                        <i class="fas fa-calculator"></i> Math
+                    </button>
+                    <button class="quick-btn" data-prompt="Explain quantum computing">
+                        <i class="fas fa-atom"></i> Learn
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>ForYouAI is thinking...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

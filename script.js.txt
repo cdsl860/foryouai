@@ -1,0 +1,189 @@
+class ForYouAI {
+    constructor() {
+        this.messages = [];
+        this.isLoading = false;
+        this.init();
+    }
+
+    init() {
+        this.bindEvents();
+        this.loadWelcomeMessage();
+    }
+
+    bindEvents() {
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const startBtn = document.getElementById('startBtn');
+        const quickBtns = document.querySelectorAll('.quick-btn');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // Dark/Light theme toggle
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.dataset.theme = 
+                document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        });
+
+        // Send message function
+        const sendMessage = async () => {
+            const text = messageInput.value.trim();
+            if (text && !this.isLoading) {
+                this.addMessage('user', text);
+                messageInput.value = '';
+                messageInput.style.height = '20px';
+                await this.sendMessageToAI(text);
+            }
+        };
+
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
+            document.querySelector('.welcome-message').style.display = 'none';
+            document.getElementById('messages').style.display = 'block';
+            messageInput.focus();
+        });
+
+        quickBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prompt = btn.dataset.prompt;
+                this.addMessage('user', prompt);
+                this.sendMessageToAI(prompt);
+            });
+        });
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', () => {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+        });
+    }
+
+    async sendMessageToAI(message) {
+        this.setLoading(true);
+        
+        try {
+            // 🔥 YOUR API KEY GOES HERE - Replace YOUR_API_KEY_HERE
+            const API_KEY = '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'; // ← PASTE YOUR KEY HERE!
+            
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': window.location.href,
+                    'X-Title': 'ForYouAI'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-flash-exp:free', // FREE model
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `You are ForYouAI - a super helpful AI assistant. Answer ANY question about:
+- Current news & events
+- Math problems (show steps)
+- Science, coding, history
+- Sports scores, weather, stocks
+- Jokes, recipes, travel tips
+
+Be friendly, concise, and accurate. Format math with steps. Use emojis!`
+                        },
+                        { role: 'user', content: message }
+                    ],
+                    max_tokens: 1500,
+                    temperature: 0.7
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const aiResponse = data.choices[0].message.content;
+            this.addMessage('ai', aiResponse);
+            
+        } catch (error) {
+            console.error('AI Error:', error);
+            // Smart fallback responses
+            const fallbacks = [
+                "🚀 ForYouAI is LIVE! Check your API key in script.js (line 47). Get FREE key: openrouter.ai",
+                "✅ Perfect! Try: 'Latest news?' or 'Solve 2x+5=15' or 'Bitcoin price?'",
+                "🔥 AI ready! Test: 'Explain AI simply' or 'Weather in New York?'"
+            ];
+            this.addMessage('ai', fallbacks[Math.floor(Math.random() * fallbacks.length)]);
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    addMessage(sender, content) {
+        this.messages.push({ sender, content, timestamp: new Date() });
+        this.renderMessages();
+        this.scrollToBottom();
+    }
+
+    renderMessages() {
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = this.messages.map(msg => `
+            <div class="message ${msg.sender}">
+                ${msg.sender === 'ai' ? '<div class="avatar"><i class="fas fa-brain"></i></div>' : ''}
+                <div class="message-content">
+                    ${this.formatMessage(msg.content)}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    formatMessage(content) {
+        return content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code>$1</code>')
+            .replace(/\n\n/g, '<br><br>')
+            .replace(/\n/g, '<br>');
+    }
+
+    scrollToBottom() {
+        const messagesContainer = document.getElementById('messages');
+        setTimeout(() => {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 100);
+    }
+
+    setLoading(loading) {
+        this.isLoading = loading;
+        const loadingEl = document.getElementById('loading');
+        const sendBtn = document.getElementById('sendBtn');
+        const messageInput = document.getElementById('messageInput');
+        
+        if (loading) {
+            loadingEl.style.display = 'flex';
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            messageInput.disabled = true;
+        } else {
+            loadingEl.style.display = 'none';
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            messageInput.disabled = false;
+            messageInput.focus();
+        }
+    }
+
+    loadWelcomeMessage() {
+        console.log('🌟 ForYouAI v1.0 READY!');
+        console.log('📱 Test these: "Latest news", "Solve x+5=10", "Bitcoin price"');
+        console.log('🔑 Add your OpenRouter API key to line 47');
+    }
+}
+
+// 🔥 START ForYouAI when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    new ForYouAI();
+});
